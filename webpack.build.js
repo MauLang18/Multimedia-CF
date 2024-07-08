@@ -1,6 +1,7 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemovePlugin = require("remove-files-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const config = {
   mode: "production",
@@ -50,7 +51,7 @@ const jsOutput = Object.assign({}, config, {
 const cssOutput = Object.assign({}, config, {
   entry: "./styles/scss/image-gallery.scss",
   output: {
-    path: path.resolve(__dirname, "styles/css"),
+    path: path.resolve(__dirname, "demo"), // Cambiado a "demo" para la salida CSS
   },
   module: {
     rules: [
@@ -68,7 +69,7 @@ const cssOutput = Object.assign({}, config, {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: "image-gallery.css",
+      filename: "demo.mini.css", // Cambiado el nombre del archivo CSS generado
     }),
     new RemovePlugin({
       /**
@@ -77,9 +78,9 @@ const cssOutput = Object.assign({}, config, {
       after: {
         test: [
           {
-            folder: "styles/css",
+            folder: "demo",
             method: (absoluteItemPath) => {
-              return new RegExp(/\.js$/, "m").test(absoluteItemPath);
+              return new RegExp(/\.js$/).test(absoluteItemPath);
             },
           },
         ],
@@ -109,6 +110,11 @@ const jsDemoOutput = Object.assign({}, config, {
     ],
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      template: "./example/index.html", // Ruta al archivo HTML de plantilla
+      filename: "index.html", // Nombre del archivo HTML de salida
+      inject: 'body', // Injects all assets into the body element
+    }),
     new RemovePlugin({
       /**
        * After compilation permanently remove unused LICENSE.txt file
@@ -147,6 +153,11 @@ const cssDemoOutput = Object.assign({}, config, {
     ],
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      template: "./example/index.html", // Ruta al archivo HTML de plantilla
+      filename: "index.html", // Nombre del archivo HTML de salida
+      inject: 'body', // Injects all assets into the body element
+    }),
     new MiniCssExtractPlugin({
       filename: "demo.mini.css",
     }),
