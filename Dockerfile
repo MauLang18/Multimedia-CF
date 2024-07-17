@@ -1,15 +1,17 @@
-FROM node:20-alpine3.16 as dev-deps
+# Etapa de desarrollo - Instalación de dependencias
+FROM node:22.3.0 AS dev-deps
 WORKDIR /app
-COPY package.json package.json
-RUN npm install --force
+COPY package.json package-lock.json ./
+RUN npm ci --force
 
-FROM node:20-alpine3.16 as builder
-WORKDIR /app
-COPY --from=dev-deps /app/node_modules ./node_modules
+# Etapa de construcción - Compilación de la aplicación
+FROM dev-deps AS builder
 COPY . .
-RUN npm run build
+RUN npm run build --prod
 
+# Etapa de producción - Servidor Nginx
 FROM nginx:1.23.3
 EXPOSE 80
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/demo/ /usr/share/nginx/html
 CMD ["nginx", "-g", "daemon off;"]
